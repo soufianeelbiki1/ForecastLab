@@ -19,8 +19,11 @@ ForecastLab is the applied ML flagship. Its next direction is passport-photo com
 - Versioned synthetic observation dataset with fixed train/validation/test-style splits and provenance declaring that no photographs or personal identity data are included.
 - Rule-level confusion counts plus precision, recall, and accuracy helpers for evaluator regression.
 - Regression tests prove the reference policy matches the synthetic labels and detect stricter-threshold false positives.
-- No computer-vision accuracy claim is made yet because pixel-level estimators and held-out real-world evaluation are not implemented.
+- Narrow estimator interfaces for pose/face count, background uniformity, occlusion, and image quality signals.
+- Observation pipeline composes estimator outputs into the existing compliance policy input while keeping blur/compression/illumination/shadow scores separate until validated rules exist.
+- Deterministic estimator doubles exercise the full estimator-to-policy boundary in CI without raw images or heavyweight CV dependencies.
+- No computer-vision accuracy claim is made yet because production pixel estimators and licensed held-out real-world evaluation are not implemented.
 
 ## Next slice
 
-Introduce estimator interfaces for blur/compression, illumination/shadow, pose/face count, background uniformity, and occlusion observations. Keep deterministic synthetic estimator doubles in CI, then add dataset/evaluation adapters that can later score licensed held-out images without changing the policy layer or storing raw photos in the repository.
+Add explicit quality policy rules for blur/compression and illumination/shadow only after defining labeled synthetic quality examples and threshold-regression metrics. Then add adapter contracts for licensed held-out image evaluation without storing raw images in the repository, followed by a small FastAPI inference surface that returns rule evidence and model/estimator version metadata.
