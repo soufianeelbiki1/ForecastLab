@@ -23,8 +23,9 @@ ForecastLab is the applied ML flagship. Its next direction is passport-photo com
 - Observation pipeline composes estimator outputs into the existing compliance policy input while keeping blur/compression/illumination/shadow scores separate from geometric/photo rules.
 - Versioned quality policy evaluates normalized blur, compression, illumination, and shadow scores with explainable thresholds, synthetic labels, and rule-level regression metrics.
 - Deterministic estimator doubles exercise the full estimator-to-policy boundary in CI without raw images or heavyweight CV dependencies.
+- Versioned signal-inference service combines geometric and quality policies, returns estimator/policy provenance, and is exposed through a FastAPI precomputed-signal endpoint with explicit rule evidence.
 - No computer-vision accuracy claim is made yet because production pixel estimators and licensed held-out real-world evaluation are not implemented.
 
 ## Next slice
 
-Add adapter contracts for licensed held-out image evaluation without storing raw images in the repository, then expose a small FastAPI inference surface returning geometric/photo rules, quality rules, policy versions, and estimator-version metadata. Keep synthetic-score regression separate from any real-world accuracy claim.
+Add adapter contracts for licensed held-out image evaluation without storing raw images in the repository, then implement a raw-image adapter behind the existing versioned signal-inference service. Keep the current FastAPI endpoint explicitly signal-only until real pixel estimators and held-out evaluation exist.
