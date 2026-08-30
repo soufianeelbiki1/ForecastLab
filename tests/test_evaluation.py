@@ -30,10 +30,11 @@ def test_reference_policy_matches_labeled_synthetic_failures() -> None:
 def test_metrics_detect_policy_regression() -> None:
     from forecastlab.compliance import CompliancePolicy
 
-    stricter = PassportComplianceEvaluator(
-        CompliancePolicy(min_background_uniformity=0.99)
-    )
-    metrics = {metric.rule: metric for metric in evaluate_rule_metrics(synthetic_dataset_v1(), stricter)}
+    stricter = PassportComplianceEvaluator(CompliancePolicy(min_background_uniformity=0.99))
+    metrics = {
+        metric.rule: metric
+        for metric in evaluate_rule_metrics(synthetic_dataset_v1(), stricter)
+    }
 
     assert metrics[RuleCode.BACKGROUND].false_positive > 0
     assert metrics[RuleCode.BACKGROUND].precision < 1.0
