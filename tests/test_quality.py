@@ -47,7 +47,8 @@ def test_stricter_quality_thresholds_create_measurable_false_positives() -> None
             min_shadow_score=0.90,
         )
     )
-    metrics = {item.rule: item for item in evaluate_quality_metrics(synthetic_quality_dataset_v1(), stricter)}
+    evaluated = evaluate_quality_metrics(synthetic_quality_dataset_v1(), stricter)
+    metrics = {item.rule: item for item in evaluated}
 
     assert metrics[QualityRuleCode.BLUR].false_positive > 0
     assert metrics[QualityRuleCode.COMPRESSION].false_positive > 0
