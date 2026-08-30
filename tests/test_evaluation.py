@@ -31,7 +31,8 @@ def test_metrics_detect_policy_regression() -> None:
     from forecastlab.compliance import CompliancePolicy
 
     stricter = PassportComplianceEvaluator(CompliancePolicy(min_background_uniformity=0.99))
-    metrics = {metric.rule: metric for metric in evaluate_rule_metrics(synthetic_dataset_v1(), stricter)}
+    evaluated = evaluate_rule_metrics(synthetic_dataset_v1(), stricter)
+    metrics = {metric.rule: metric for metric in evaluated}
 
     assert metrics[RuleCode.BACKGROUND].false_positive > 0
     assert metrics[RuleCode.BACKGROUND].precision < 1.0
