@@ -139,7 +139,7 @@ def build_demo_report_html() -> str:
         <th>Decision</th><th>Score</th><th>Rule evidence</th>
       </tr>
     </thead>
-    <tbody>{''.join(rows)}</tbody>
+    <tbody>{"".join(rows)}</tbody>
   </table>
 </section>
 <section class="panel">
