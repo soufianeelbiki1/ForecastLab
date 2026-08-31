@@ -53,7 +53,13 @@ th { color: #707a89; font-weight: 600; }
 .fail { background: #fee2e2; }
 .rules { min-width: 390px; }
 .rule { margin-bottom: 8px; line-height: 1.45; }
-.score-track { width: 100px; height: 8px; background: #edf0f3; border-radius: 999px; overflow: hidden; }
+.score-track {
+  width: 100px;
+  height: 8px;
+  background: #edf0f3;
+  border-radius: 999px;
+  overflow: hidden;
+}
 .score-bar { height: 100%; background: #475569; }
 @media (max-width: 820px) { .cards { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 520px) { .cards { grid-template-columns: 1fr; } }
@@ -128,7 +134,10 @@ def build_demo_report_html() -> str:
   <h2>Rule evidence by case</h2>
   <table>
     <thead>
-      <tr><th>Case</th><th>Split</th><th>Expected failures</th><th>Decision</th><th>Score</th><th>Rule evidence</th></tr>
+      <tr>
+        <th>Case</th><th>Split</th><th>Expected failures</th>
+        <th>Decision</th><th>Score</th><th>Rule evidence</th>
+      </tr>
     </thead>
     <tbody>{''.join(rows)}</tbody>
   </table>
