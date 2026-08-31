@@ -1,79 +1,49 @@
 # ForecastLab
 
-**Explainable passport-photo compliance evaluation system with versioned policies, estimator boundaries, held-out evaluation contracts, and FastAPI inference.**
+ForecastLab evaluates passport-photo compliance rules through versioned signal contracts. The current implementation focuses on explainable policy decisions, estimator interfaces and repeatable evaluation rather than claiming a finished raw-image model.
 
-ForecastLab is an applied ML / computer-vision engineering portfolio project. It focuses on the difficult parts around a vision model: measurable rules, explainable failures, versioned evaluation, privacy-conscious data handling, stable inference contracts, and honest accuracy boundaries.
+The API currently accepts precomputed image signals. It does not claim ICAO certification or measured real-world computer-vision accuracy.
 
-> Current scope: the repository evaluates precomputed image signals and deterministic estimator doubles. It does **not** claim ICAO certification, production accuracy, or validated real-world pixel estimators yet.
+## Rules
 
-## What is implemented
+The compliance policy evaluates:
 
-- Explainable compliance policy for image dimensions, face count, head pose, background uniformity, and occlusion.
-- Separate image-quality policy for blur, compression, illumination, and shadow signals.
-- Narrow estimator interfaces so real CV models can be introduced without changing policy/business logic.
-- Deterministic estimator doubles that exercise the complete estimator-to-policy pipeline in CI without raw personal images or heavyweight model downloads.
-- Versioned synthetic signal datasets with explicit provenance and fixed evaluation splits.
-- Rule-level confusion counts, precision, recall, and accuracy regression helpers.
-- Licensed held-out evaluation contract that keeps image assets outside the repository, requires provenance metadata, rejects duplicate identities, and reports overall plus named-slice metrics.
-- Versioned inference result contract with estimator and policy provenance.
-- FastAPI signal-evaluation endpoint.
-- GitHub Actions quality gate with automated tests.
+- image dimensions;
+- face count;
+- head pose;
+- background uniformity;
+- occlusion.
 
-## Architecture
+A separate quality policy handles normalized blur, compression, illumination and shadow signals. Each result includes the rule outcome and supporting evidence instead of returning only a single opaque score.
 
-```text
-Image / signal source
-        |
-        v
-Estimator ports
-  | pose / face count
-  | background / occlusion
-  | blur / compression
-  | illumination / shadow
-        |
-        v
-Versioned observations
-        |
-        +------------------+
-        |                  |
-        v                  v
-Compliance policy     Quality policy
-        |                  |
-        +--------+---------+
-                 v
-      Explainable rule results
-                 |
-                 v
-     Versioned inference contract
-                 |
-                 v
-            FastAPI API
-```
+## Estimator boundary
 
-The separation between estimators and policy rules allows model components to evolve independently while keeping evaluation semantics stable and testable.
+Estimator interfaces isolate signal extraction from policy logic. Deterministic estimator doubles are used in tests so the complete estimator-to-policy path can run in CI without raw identity photos or heavyweight model downloads.
 
-## Evaluation philosophy
+Real pixel estimators can later replace those adapters without changing the compliance rules or API contract.
 
-ForecastLab deliberately separates three claims:
+## Evaluation
 
-1. **Policy correctness** — are rule thresholds and decisions internally consistent?
-2. **Estimator quality** — do pixel/model estimators produce accurate signals?
-3. **End-to-end compliance quality** — does the full system generalize on licensed held-out images?
+The repository includes:
 
-The repository currently has strong coverage for the first layer and the infrastructure required to evaluate the second and third. No real-world accuracy number is claimed before a licensed held-out run exists.
+- versioned synthetic signal datasets with fixed splits;
+- rule-level confusion counts, precision, recall and accuracy helpers;
+- a held-out evaluation contract for external licensed image data;
+- duplicate-identity checks across evaluation partitions;
+- overall and named-slice metrics with estimator/policy version provenance.
 
-## Example API scope
+No real passport-photo dataset is committed to the repository.
 
-The current API consumes validated precomputed signals rather than pretending a raw-image model exists.
+## API
 
 ```text
 GET  /health
 POST /v1/evaluate-signals
 ```
 
-Responses expose individual rule outcomes, evidence, overall decision, and version provenance so failures are explainable rather than represented by a single opaque score.
+The response contains per-rule results, evidence, an overall decision and estimator/policy versions.
 
-## Testing and reproducibility
+## Run and test
 
 ```bash
 python -m pip install -e '.[dev]'
@@ -82,27 +52,18 @@ ruff format --check .
 pytest -q
 ```
 
-CI is designed to remain deterministic and credential-free. Test fixtures contain synthetic observations rather than passport photographs or identity data.
+CI uses synthetic observations and does not require private image assets.
 
-## Privacy and data boundaries
+## Limitations
 
-- No real passport-photo dataset is committed to this repository.
-- Held-out assets are expected to remain external and explicitly licensed.
-- Dataset provenance and split version must be recorded before results are reported.
-- Duplicate identities across evaluation partitions are rejected by the held-out contract.
-- This project does not claim government, ICAO, or biometric certification.
+- raw-image inference is not implemented yet;
+- the current estimator path in CI uses deterministic doubles;
+- no production or certification claim is made;
+- end-to-end accuracy must be measured on a licensed held-out dataset before publishing accuracy numbers.
 
-## Portfolio signal
+## Roadmap
 
-ForecastLab demonstrates:
-
-- applied ML system design beyond model training notebooks;
-- explainable decision pipelines and rule-level diagnostics;
-- evaluation design, slice metrics, and versioned evidence;
-- privacy-conscious dataset boundaries;
-- FastAPI inference contracts;
-- testable abstraction of real CV estimators from product policy.
-
-## Next engineering milestone
-
-Implement a privacy-conscious raw-image adapter and real pixel-estimator implementations behind the existing interfaces, then execute the licensed held-out evaluation harness and report measured slice-level results without changing the existing claim boundaries.
+1. Add a privacy-conscious raw-image adapter.
+2. Implement real pixel estimators behind the existing interfaces.
+3. Run the held-out evaluation harness on a licensed, versioned dataset.
+4. Add a visual demo for per-rule evidence and evaluation results.
