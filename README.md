@@ -16,6 +16,18 @@ The compliance policy evaluates:
 
 A separate quality policy handles normalized blur, compression, illumination and shadow signals. Each result includes the rule outcome and supporting evidence instead of returning only a single opaque score.
 
+## Visual compliance demo
+
+Generate a standalone HTML report from the versioned synthetic signal dataset:
+
+```bash
+python -m forecastlab.demo_report --output build/forecastlab-compliance.html
+```
+
+Open the generated file in a browser. It shows every synthetic case, expected failure labels, the overall policy decision, policy score and the evidence produced by each rule.
+
+The report exercises the current signal-to-policy layer. It does not infer pose, faces, background or occlusion from image pixels, so it should not be read as a raw-image accuracy demonstration.
+
 ## Estimator boundary
 
 Estimator interfaces isolate signal extraction from policy logic. Deterministic estimator doubles are used in tests so the complete estimator-to-policy path can run in CI without raw identity photos or heavyweight model downloads.
@@ -50,6 +62,7 @@ python -m pip install -e '.[dev]'
 ruff check .
 ruff format --check .
 pytest -q
+python -m forecastlab.demo_report --output build/forecastlab-compliance.html
 ```
 
 CI uses synthetic observations and does not require private image assets.
@@ -66,4 +79,4 @@ CI uses synthetic observations and does not require private image assets.
 1. Add a privacy-conscious raw-image adapter.
 2. Implement real pixel estimators behind the existing interfaces.
 3. Run the held-out evaluation harness on a licensed, versioned dataset.
-4. Add a visual demo for per-rule evidence and evaluation results.
+4. Extend the demo with real estimator output only after held-out measurements exist.
