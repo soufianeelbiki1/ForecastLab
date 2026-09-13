@@ -41,7 +41,7 @@ The repository includes:
 - versioned synthetic signal datasets with fixed splits;
 - rule-level confusion counts, precision, recall and accuracy helpers;
 - a held-out evaluation contract for external licensed image data;
-- duplicate-identity checks across evaluation partitions;
+- duplicate manifest-ID, locator, license-reference and resolved-frame checks;
 - overall and named-slice metrics with estimator/policy version provenance.
 
 No real passport-photo dataset is committed to the repository.
