@@ -47,8 +47,8 @@ class QualityEstimator:
         return QualityEstimate(0.95, 0.95, 0.95, 0.95)
 
 
-def evaluator() -> HeldOutEvaluator:
-    provider = ManifestFrameProvider(
+def evaluator(provider: ManifestFrameProvider | None = None) -> HeldOutEvaluator:
+    provider = provider or ManifestFrameProvider(
         {
             "vault://good": ImageFrame("asset-good", 800, 1000),
             "vault://small": ImageFrame("asset-small", 200, 250),
@@ -107,6 +107,47 @@ def test_manifest_requires_external_license_provenance_and_unique_ids() -> None:
     duplicate = HeldOutAsset("same", "vault://good", "license://dataset-v1/a", True)
     with pytest.raises(ValueError, match="ids must be unique"):
         evaluator().evaluate((duplicate, duplicate))
+
+
+@pytest.mark.parametrize(
+    ("second", "message"),
+    (
+        (
+            HeldOutAsset("other", "vault://good", "license://dataset-v1/b", True),
+            "locators must be unique",
+        ),
+        (
+            HeldOutAsset("other", "vault://small", "license://dataset-v1/a", False),
+            "license references must be unique",
+        ),
+    ),
+)
+def test_manifest_rejects_duplicate_asset_references(
+    second: HeldOutAsset,
+    message: str,
+) -> None:
+    first = HeldOutAsset("first", "vault://good", "license://dataset-v1/a", True)
+
+    with pytest.raises(ValueError, match=message):
+        evaluator().evaluate((first, second))
+
+
+def test_manifest_rejects_aliases_that_resolve_to_the_same_frame() -> None:
+    duplicate_frame = ImageFrame("same-frame", 800, 1000)
+    provider = ManifestFrameProvider(
+        {
+            "vault://alias-a": duplicate_frame,
+            "vault://alias-b": duplicate_frame,
+        }
+    )
+    heldout_evaluator = evaluator(provider)
+    assets = (
+        HeldOutAsset("a", "vault://alias-a", "license://dataset-v1/a", True),
+        HeldOutAsset("b", "vault://alias-b", "license://dataset-v1/b", True),
+    )
+
+    with pytest.raises(ValueError, match="resolved frame ids must be unique"):
+        heldout_evaluator.evaluate(assets)
 
 
 def test_empty_evaluation_is_rejected_instead_of_reporting_fake_metrics() -> None:
