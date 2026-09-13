@@ -6,6 +6,7 @@ pixel ownership remains behind the adapter boundary.
 """
 
 from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -91,16 +92,23 @@ class HeldOutEvaluator:
     def evaluate(self, assets: tuple[HeldOutAsset, ...]) -> HeldOutEvaluationReport:
         if not assets:
             raise ValueError("held-out evaluation requires at least one asset")
-        ids = [asset.asset_id for asset in assets]
-        if len(ids) != len(set(ids)):
-            raise ValueError("held-out asset ids must be unique")
+        _require_unique((asset.asset_id for asset in assets), "asset ids")
+        _require_unique((asset.locator for asset in assets), "asset locators")
+        _require_unique(
+            (asset.license_reference for asset in assets),
+            "asset license references",
+        )
 
         overall_pairs: list[tuple[bool, bool]] = []
         slice_pairs: dict[str, list[tuple[bool, bool]]] = defaultdict(list)
         policy_versions: tuple[str, str] | None = None
+        resolved_frame_ids: set[str] = set()
 
         for asset in assets:
             frame = self._provider.load(asset)
+            if frame.frame_id in resolved_frame_ids:
+                raise ValueError("resolved frame ids must be unique")
+            resolved_frame_ids.add(frame.frame_id)
             bundle = self._pipeline.observe(frame)
             result = self._inference.evaluate(bundle.observation, bundle.quality)
             pair = (result.acceptable, asset.expected_acceptable)
@@ -129,3 +137,9 @@ def _metrics(pairs: list[tuple[bool, bool]]) -> BinaryMetrics:
     fp = sum(predicted and not expected for predicted, expected in pairs)
     fn = sum(not predicted and expected for predicted, expected in pairs)
     return BinaryMetrics(tp, tn, fp, fn)
+
+
+def _require_unique(values: Iterable[str], label: str) -> None:
+    materialized = tuple(values)
+    if len(materialized) != len(set(materialized)):
+        raise ValueError(f"held-out {label} must be unique")
